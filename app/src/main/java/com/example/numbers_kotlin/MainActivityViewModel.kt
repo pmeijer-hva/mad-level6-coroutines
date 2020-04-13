@@ -11,7 +11,8 @@ class MainActivityViewModel : ViewModel() {
     private val numbersRepository = NumbersRepository()
 
     /**
-     * MutableLiveData always private in our repo, no one else should modify this
+     * This property points direct to the LiveDatain the repository, that value
+     * get's updated when user clicks FAB. This happens through the refreshNumber() in this class :)
      */
     val trivia = numbersRepository.trivia
 
@@ -20,23 +21,21 @@ class MainActivityViewModel : ViewModel() {
     /**
      * Expose non MutableLiveData via getter
      * errorText can be observed from Activity for error showing
+     * Encapsulation :)
      */
     val errorText: LiveData<String>
         get() = _errorText
 
-    fun refreshNumber() = launchDataLoad {
-        numbersRepository.getRandomNumberTrivia()
-    }
-
     /**
-     * Helper function to run function after work completes
-     * block() is a UI thread function, hence the name block
-     * Also sets _error String if failure
+     * The viewModelScope is bound to Dispatchers.Main and will automatically be cancelled when the ViewModel is cleared.
+     * Extension method of lifecycle-viewmodel-ktx library
      */
-    private fun launchDataLoad(block: suspend () -> Unit) {
+    fun refreshNumber() {
         viewModelScope.launch {
             try {
-                block()
+                //the numberRepository sets it's own livedata property
+                //our own trivia property points to this one
+                numbersRepository.getRandomNumberTrivia()
             } catch (error: NumbersRepository.TriviaRefreshError) {
                 _errorText.value = error.message
             }
