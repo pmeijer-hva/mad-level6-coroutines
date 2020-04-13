@@ -16,7 +16,7 @@ class MainActivityViewModel : ViewModel() {
      */
     val trivia = numbersRepository.trivia
 
-    private var _errorText: MutableLiveData<String> = MutableLiveData()
+    private val _errorText: MutableLiveData<String> = MutableLiveData()
 
     /**
      * Expose non MutableLiveData via getter
